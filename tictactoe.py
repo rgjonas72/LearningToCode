@@ -51,7 +51,7 @@ def main():
 
         space = get_user_input('o')-1
         while inputs[space] == 0 or inputs[space] == -1:
-            space = get_user_input('o')-1
+            space = get_user_input('o') - 1
         inputs[space] = -1
         print_board(inputs)
 
