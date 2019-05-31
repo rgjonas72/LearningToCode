@@ -6,71 +6,91 @@
 #       Score is kept track
 #           X - 5, O - 2, Tie - 52
 def main():
+    inputs = [i for i in range(1, 10)]
+
     
-    inputs = [1,2,3,4,5,6,7,8,9]
-    print_board(inputs)
-    xwins = 0
-    ywins = 0
+
+    #       X, O
+    wins = [0, 0]
+
+    space = 0
     ties = 0
     inc = 0
-    nq = '43 sucks'
-    for x in range(5):
-        inc += 1
-        t = get_user_input_x()-1
-        inputs[t] = 0
+
+    playing = True
+    while playing:
         print_board(inputs)
-        if checkwin(inputs):
-            print(xwin())
-            xwins += 1
-            break
-        if inc == 5:
+        inc += 1
+
+        # TODO - don't let them play in a square that is already occupied
+        space = get_user_input('X')-1
+        while inputs[space] == 0 or inputs[space] == -1:
+            space = get_user_input('X')-1
+        inputs[space] = 0
+        print_board(inputs)
+
+        if check_win(inputs):
+            print(player_win('X'))
+            wins[0] += 1
+            print('X - {}, o - {}, Tie - {}'.format(wins[0], wins[1], ties))
+            inputs = [i for i in range(1, 10)]
+            if play_again() == 'Q':
+                playing = False
+            continue
+            # reset game
+
+        if board_is_full(inputs):
             print('Tie!')
             ties += 1
-            break
-        t = get_user_input_y()-1
-        inputs[t] = -1
+            print('X - {}, o - {}, Tie - {}'.format(wins[0], wins[1], ties))
+            inputs = [i for i in range(1, 10)]
+            if play_again() == 'Q':
+                playing = False
+            continue
+            # reset game
+
+        space = get_user_input('o')-1
+        while inputs[space] == 0 or inputs[space] == -1:
+            space = get_user_input('o')-1
+        inputs[space] = -1
         print_board(inputs)
-        if checkwin(inputs):
-            print(ywin())
-            inc = -1
-            ywins += 1
-            break
 
-    print('X - {}, o - {}, Tie - {}'.format(xwins, ywins, ties))
-    nq = playagain()
-    if nq == 'N':
-        main()
+        if check_win(inputs):
+            print(player_win('o'))
+            wins[1] += 1
+            print('X - {}, o - {}, Tie - {}'.format(wins[0], wins[1], ties))
+            inputs = [i for i in range(1, 10)]
+            if play_again() == 'Q':
+                playing = False
+            continue
+            # reset game
 
+        
 
     # TODO - make tic tac toe game
 
+
 def print_board(arr):
-    p1 = checkval(arr[0])
-    p2 = checkval(arr[1])
-    p3 = checkval(arr[2])
-    p4 = checkval(arr[3])
-    p5 = checkval(arr[4])
-    p6 = checkval(arr[5])
-    p7 = checkval(arr[6])
-    p8 = checkval(arr[7])
-    p9 = checkval(arr[8])
+    p = []
+    for a in arr:
+        p.append(check_val(a))
 
-    print(' {} | {} | {} '.format(p1, p2, p3))
+    print(' {} | {} | {} '.format(p[0], p[1], p[2]))
     print('-----------')
-    print(' {} | {} | {} '.format(p4, p5, p6))
+    print(' {} | {} | {} '.format(p[3], p[4], p[5]))
     print('-----------')
-    print(' {} | {} | {} '.format(p7, p8, p9))
+    print(' {} | {} | {} '.format(p[6], p[7], p[8]))
 
-def checkwin(arr):
-    p1 = checkval(arr[0])
-    p2 = checkval(arr[1])
-    p3 = checkval(arr[2])
-    p4 = checkval(arr[3])
-    p5 = checkval(arr[4])
-    p6 = checkval(arr[5])
-    p7 = checkval(arr[6])
-    p8 = checkval(arr[7])
-    p9 = checkval(arr[8])
+def check_win(arr):
+    p1 = check_val(arr[0])
+    p2 = check_val(arr[1])
+    p3 = check_val(arr[2])
+    p4 = check_val(arr[3])
+    p5 = check_val(arr[4])
+    p6 = check_val(arr[5])
+    p7 = check_val(arr[6])
+    p8 = check_val(arr[7])
+    p9 = check_val(arr[8])
 
     if p1 == p2 == p3:
         return True
@@ -88,46 +108,49 @@ def checkwin(arr):
         return True
     elif p3 == p5 == p7:
         return True
-    #elif all(x < 1 for x in arr):
-     #   return True
     else:
         return False
 
-def xwin():
-    return 'X wins!'
+def player_win(player):
+    return '{} wins!'.format(player)
 
-def ywin():
-    return 'o wins!'
+def play_again():
+    resp = 'Q'
 
-def playagain ():
-    try:
-        return (input('Enter N to play again, Q to quit'))
-    except:
-        print('Please enter a valid response')
-        return playagain()
-        
+    resp = input('Enter N to play again, Q to quit')
+    while resp not in {'Q', 'N'}:
+        resp = input('Enter N to play again, Q to quit')
+    return resp
 
-def checkval (val):
+def check_val(val):
     if val == 0:
-        return 'X' 
+        return 'X'
     elif val == -1:
         return 'o'
-    else:
-        return val
 
-def get_user_input_x():
+    return val
+
+def board_is_full(inputs):
+    for i in inputs:
+        if i > 1:
+            return False
+
+    return True
+
+def get_user_input(player):
+    num = 0
+
+    num = get_input_int('Place an {} in spot: '.format(player))
+    while num > 9 or num < 0:
+        num = get_input_int('Place an {} in spot: '.format(player))
+    return num
+
+def get_input_int(msg):
     try:
-        return int(input('Place an X in spot: '))
+        return int(input(msg))
     except:
         print('Please enter a valid spot')
-        return get_user_input_x()
-
-def get_user_input_y():
-    try:
-        return int(input('Place an o in spot: '))
-    except:
-        print('Please enter a valid spot')
-        return get_user_input_y()
+        return get_input_int(msg)
 
 if __name__ == '__main__':
     main()
